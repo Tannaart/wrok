@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣八大縣市經緯度互動地圖</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet CSS & JS (免費開源 OpenStreetMap 核心庫) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Font Awesome 圖示 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 針對 Google Sites 嵌入容器特化 */
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* 自訂地圖標記光暈效果 */
+    .custom-city-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .custom-city-pin:hover {
+      transform: scale(1.15) translateY(-3px);
+    }
+    .pin-badge {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 彈跳視窗美化 */
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+      padding: 2px;
+    }
+    .leaflet-popup-content {
+      margin: 10px 12px;
+      line-height: 1.5;
+    }
+
+    /* 捲軸微調 */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 flex flex-col h-full w-full select-none">
+
+  <!-- 頂部精簡資訊列 -->
+  <header class="bg-white border-b border-slate-200 px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between shadow-sm z-20 flex-shrink-0">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow-sm font-bold">
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+      <div>
+        <h1 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-1.5">
+          台灣八大核心縣市標示圖
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold border border-blue-200/60 hidden sm:inline-block">8 個縣市</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 hidden md:block">採用 OpenStreetMap 免費開源圖資，支援直接貼入 Google 協作平台</p>
+      </div>
+    </div>
+
+    <!-- 快捷按鈕組 -->
+    <div class="flex items-center gap-1.5">
+      <button id="resetViewBtn" title="還原台灣全島視野" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
+        <i class="fa-solid fa-expand text-blue-600"></i>
+        <span>全台視角</span>
+      </button>
+      <button id="toggleListBtn" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
+        <i class="fa-solid fa-table-list"></i>
+        <span class="hidden sm:inline">經緯度清單</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主畫面：地圖與城市選單 -->
+  <main class="flex-1 relative flex overflow-hidden">
+    <!-- 地圖主畫布 -->
+    <div id="map" class="w-full h-full z-0 bg-slate-100"></div>
+
+    <!-- 頂端城市快速錨定標籤列 -->
+    <div class="absolute top-2 left-2 right-2 sm:left-4 sm:right-auto z-[1000] flex flex-wrap gap-1.5 pointer-events-none max-w-full">
+      <div class="pointer-events-auto bg-white/90 backdrop-blur-md p-1.5 rounded-xl shadow-md border border-slate-200/80 flex items-center gap-1 overflow-x-auto max-w-full" id="chipsBar">
+        <!-- 由 JavaScript 動態生成 8 縣市快速按鈕 -->
+      </div>
+    </div>
+
+    <!-- 右側或側邊滑出經緯度詳細抽屜卡片 -->
+    <aside id="infoPanel" class="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white/95 backdrop-blur-md border-l border-slate-200 shadow-2xl z-[1010] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+      <div class="p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+        <h2 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-compass text-blue-600"></i>
+          八縣市經緯度對照表
+        </h2>
+        <button id="closePanelBtn" class="w-6 h-6 rounded-md hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- 城市列表 -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-1.5" id="citiesListContainer">
+        <!-- 由 JavaScript 填入項目 -->
+      </div>
+
+      <!-- 提示小工具 -->
+      <div class="p-2.5 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500">
+        <div class="flex items-center gap-1.5 text-blue-700 font-semibold mb-0.5">
+          <i class="fa-regular fa-lightbulb"></i>
+          <span>小提示</span>
+        </div>
+        點擊任一縣市即可快速飛移至該地並複製經緯度。
+      </div>
+    </aside>
+
+    <!-- 複製成功浮動 Toast -->
+    <div id="copyToast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg pointer-events-none opacity-0 transition-opacity duration-200 z-[2000] flex items-center gap-1.5">
+      <i class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toastMsg">經緯度已複製至剪貼簿！</span>
+    </div>
+  </main>
+
+  <script>
+    // 8 個指定縣市標準經緯度座標與特色介紹
+    const CITIES = [
+      {
+        id: "keelung",
+        name: "基隆",
+        fullName: "基隆市",
+        lat: 25.1276,
+        lng: 121.7392,
+        region: "北部",
+        color: "#0284c7", // Sky 600
+        desc: "臺灣北端天然深水良港，兼具山海港灣景緻，著名地標包含基隆港、廟口夜市與和平島公園。"
+      },
+      {
+        id: "taipei",
+        name: "台北",
+        fullName: "台北市",
+        lat: 25.0330,
+        lng: 121.5654,
+        region: "北部",
+        color: "#2563eb", // Blue 600
+        desc: "臺灣首都與金融商業核心樞紐，著名地標有台北101、故宮博物院及四通八達的捷運路網。"
+      },
+      {
+        id: "yilan",
+        name: "宜蘭",
+        fullName: "宜蘭縣",
+        lat: 24.7570,
+        lng: 121.7530,
+        region: "東部",
+        color: "#059669", // Emerald 600
+        desc: "蘭陽平原沃野千里，龜山島守護外海，以礁溪溫泉、傳統藝術中心與蔥郁好山好水著稱。"
+      },
+      {
+        id: "taichung",
+        name: "台中",
+        fullName: "台中市",
+        lat: 24.1618,
+        lng: 120.6469,
+        region: "中部",
+        color: "#d97706", // Amber 600
+        desc: "臺灣中部的樞紐都會，氣候宜人，擁有國家歌劇院、高美濕地與審計新村等文創地標。"
+      },
+      {
+        id: "tainan",
+        name: "台南",
+        fullName: "台南市",
+        lat: 22.9997,
+        lng: 120.2270,
+        region: "南部",
+        color: "#ea580c", // Orange 600
+        desc: "歷史悠久的文化古都，古蹟聚落遍布，赤崁樓、安平古堡與豐富道地小吃名聞遐邇。"
+      },
+      {
+        id: "kaohsiung",
+        name: "高雄",
+        fullName: "高雄市",
+        lat: 22.6273,
+        lng: 120.3014,
+        region: "南部",
+        color: "#dc2626", // Red 600
+        desc: "南臺灣海港重鎮與海洋首都，擁駁二藝術特區、亞洲新灣區、旗津港灣與愛河水岸風情。"
+      },
+      {
+        id: "hualien",
+        name: "花蓮",
+        fullName: "花蓮縣",
+        lat: 23.9872,
+        lng: 121.6016,
+        region: "東部",
+        color: "#0d9488", // Teal 600
+        desc: "倚靠雄偉中央山脈、面臨浩瀚太平洋，擁有太魯閣峽谷、七星潭海岸等國際級自然景觀。"
+      },
+      {
+        id: "taitung",
+        name: "台東",
+        fullName: "台東縣",
+        lat: 22.7583,
+        lng: 121.1444,
+        region: "東部",
+        color: "#7c3aed", // Violet 600
+        desc: "臺灣東南部自然純淨境地，三仙台、伯朗大道、熱氣球嘉年華與南島原民文化精彩璀璨。"
+      }
+    ];
+
+    // 全台灣視野中心設定
+    const TAIWAN_CENTER = [23.75, 120.95];
+    const DEFAULT_ZOOM = 7.5;
+
+    // 初始化地圖（使用免費的 OpenStreetMap 圖資）
+    const map = L.map('map', {
+      zoomControl: false,
+      minZoom: 6,
+      maxZoom: 18,
+      center: TAIWAN_CENTER,
+      zoom: DEFAULT_ZOOM
+    });
+
+    // 將縮放控制鈕放置於右下方，避開頂端標籤
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // 載入 OpenStreetMap 圖資圖層 (完全免費、免 API 金鑰)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> 貢獻者'
+    }).addTo(map);
+
+    const markerMap = new Map();
+
+    // 替 8 個縣市建立客製化高質感 Marker
+    CITIES.forEach(city => {
+      // 建立 SVG 圓角標記
+      const markerHtml = `
+        <div class="custom-city-pin" style="color: ${city.color}">
+          <div class="pin-badge px-2 py-1 rounded-full text-white font-bold text-xs flex items-center gap-1" style="background-color: ${city.color}">
+            <i class="fa-solid fa-map-pin text-[10px]"></i>
+            <span>${city.name}</span>
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'leaflet-city-divicon',
+        html: markerHtml,
+        iconSize: [60, 28],
+        iconAnchor: [30, 14]
+      });
+
+      const marker = L.marker([city.lat, city.lng], { icon: customIcon }).addTo(map);
+
+      // Popup 彈出內容
+      const popupHtml = `
+        <div class="p-1 min-w-[210px] text-slate-800">
+          <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${city.color}"></span>
+              <span class="font-bold text-sm text-slate-900">${city.fullName}</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${city.region}</span>
+          </div>
+          
+          <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-[11px] mb-2 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">緯度 (Latitude)：</span>
+              <span class="font-mono font-bold text-slate-700">${city.lat.toFixed(4)}° N</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">經度 (Longitude)：</span>
+              <span class="font-mono font-bold text-slate-700">${city.lng.toFixed(4)}° E</span>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-600 leading-relaxed mb-2">${city.desc}</p>
+
+          <button onclick="copyCoords(${city.lat}, ${city.lng}, '${city.fullName}')" class="w-full py-1 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-semibold flex items-center justify-center gap-1 transition">
+            <i class="fa-regular fa-copy"></i>
+            複製經緯度 (${city.lat}, ${city.lng})
+          </button>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        offset: [0, -10],
+        closeButton: true
+      });
+
+      markerMap.set(city.id, marker);
+    });
+
+    // 聚焦前往指定城市
+    function flyToCity(cityId, zoomLevel = 12) {
+      const city = CITIES.find(c => c.id === cityId);
+      const marker = markerMap.get(cityId);
+      if (city && marker) {
+        map.flyTo([city.lat, city.lng], zoomLevel, {
+          duration: 1.2,
+          easeLinearity: 0.25
+        });
+        setTimeout(() => {
+          marker.openPopup();
+        }, 1100);
+      }
+    }
+
+    // 渲染頂端快速切換按鈕
+    const chipsBar = document.getElementById('chipsBar');
+    CITIES.forEach(city => {
+      const btn = document.createElement('button');
+      btn.className = "flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold hover:bg-slate-100 active:scale-95 transition text-slate-700 border border-transparent hover:border-slate-200 whitespace-nowrap";
+      btn.innerHTML = `
+        <span class="w-2 h-2 rounded-full" style="background-color: ${city.color}"></span>
+        <span>${city.name}</span>
+      `;
+      btn.addEventListener('click', () => flyToCity(city.id));
+      chipsBar.appendChild(btn);
+    });
+
+    // 渲染右側詳細經緯度抽屜項目
+    const listContainer = document.getElementById('citiesListContainer');
+    CITIES.forEach(city => {
+      const card = document.createElement('div');
+      card.className = "p-2.5 rounded-xl border border-slate-100 bg-white hover:border-blue-200 hover:shadow-sm transition cursor-pointer group";
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-1.5 font-bold text-xs text-slate-800 group-hover:text-blue-600 transition">
+            <span class="w-2 h-2 rounded-full" style="background-color: ${city.color}"></span>
+            <span>${city.fullName}</span>
+          </div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">${city.region}</span>
+        </div>
+        <div class="font-mono text-[11px] text-slate-600 flex justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100/80">
+          <span>Lat: ${city.lat.toFixed(4)}°</span>
+          <span>Lng: ${city.lng.toFixed(4)}°</span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        flyToCity(city.id);
+        // 若在小螢幕則自動收合抽屜
+        if (window.innerWidth < 640) {
+          togglePanel(false);
+        }
+      });
+      listContainer.appendChild(card);
+    });
+
+    // 全台視角重設按鈕
+    document.getElementById('resetViewBtn').addEventListener('click', () => {
+      map.closePopup();
+      map.flyTo(TAIWAN_CENTER, DEFAULT_ZOOM, { duration: 1.0 });
+    });
+
+    // 側邊面板開關邏輯
+    const infoPanel = document.getElementById('infoPanel');
+    const toggleListBtn = document.getElementById('toggleListBtn');
+    const closePanelBtn = document.getElementById('closePanelBtn');
+    let isPanelOpen = false;
+
+    function togglePanel(open) {
+      isPanelOpen = typeof open === 'boolean' ? open : !isPanelOpen;
+      if (isPanelOpen) {
+        infoPanel.classList.remove('translate-x-full');
+      } else {
+        infoPanel.classList.add('translate-x-full');
+      }
+    }
+
+    toggleListBtn.addEventListener('click', () => togglePanel());
+    closePanelBtn.addEventListener('click', () => togglePanel(false));
+
+    // 複製經緯度函式（相容 iframe 內嵌安全性要求）
+    window.copyCoords = function(lat, lng, cityName) {
+      const text = `${lat}, ${lng}`;
+      
+      // 使用支援度最穩定的 textarea 拷貝方式
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      let success = false;
+      try {
+        success = document.execCommand('copy');
+      } catch (err) {
+        success = false;
+      }
+      document.body.removeChild(textarea);
+
+      const toast = document.getElementById('copyToast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = `${cityName} 經緯度 (${text}) 已複製！`;
+      toast.classList.remove('opacity-0');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2200);
+    };
+
+    // Google Sites 嵌入關鍵修復：監聽 resize 與初始化地圖尺寸
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 300);
+    });
+
+    window.addEventListener('resize', () => {
+      map.invalidateSize();
+    });
+  </script>
+</body>
+</html>
