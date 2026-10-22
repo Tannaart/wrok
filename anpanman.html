@@ -1,15 +1,16 @@
-<!DOCTYPE html><html lang="zh-Hant"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>麵包超人 GPS 定位回報站</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Noto Sans TC & Fredoka (卡通活潑圓角風格) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
-  
-  <style>
+<!DOCTYPE html>
+
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>麵包超人 GPS 定位回報站</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Noto Sans TC & Fredoka (卡通活潑圓角風格) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       font-family: 'Noto Sans TC', 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
@@ -40,143 +41,148 @@
   </style>
 </head>
 <body class="text-amber-950 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 selection:bg-amber-200 selection:text-red-700">
-  <!-- 主容器卡片 -->
-  <main class="w-full max-w-md bg-white rounded-3xl comic-card border-4 border-amber-300 overflow-hidden transition-all duration-300 my-4">
-    
-    <!-- 頂部 Header Banner (完整顯示橫式貼圖，不切角) -->
-    <header class="relative bg-amber-100/70 border-b-4 border-amber-300 overflow-hidden">
-      <!-- 麵包超人主題貼圖 (使用上傳的真實圖片) -->
-      <div class="w-full bg-[#fceecf] flex items-center justify-center overflow-hidden">
-        <img id="bannerImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxFRpPpKoLFkn7fsVvAkI3r0I3bTMlAvD6ao615VajdBYu49zCh_D2mUz17xNw2YAHuIZHaq2VgmlbPsT8lokMUVvkh4CrhH0eFt-ULrOlMaWkPOUr4xFUmuqaF7nzijHGoHqhqdQbuXKqkR4cMPDOMucCAfBs53O7Ryek_jc1g2Bc9PzXrUh114_y772CGsPNLEAjcN_SkKMb6Wo3TX25ux9af2Kvjdmh1s-Oao4zidDuDn5lJZ9rb0QbOylYgjlcLUQ" alt="麵包超人 GPS 定位探索回報" class="w-full h-auto block object-contain aspect-[1024/765] max-h-72 sm:max-h-80 transition-all duration-300">
-      </div>
-      <!-- 標題與活潑副標 -->
-      <div class="px-5 py-3 text-center bg-gradient-to-b from-amber-50 to-orange-50/80">
-        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold tracking-wider shadow-sm mb-1">
-          <span class="">✨</span>
-          <span class="">ANPANMAN GPS STATION</span>
-          <span class="">✨</span>
-        </div>
-        <h1 class="text-xl sm:text-2xl font-black text-red-600 tracking-tight flex items-center justify-center gap-1.5">
-          <span class="">📍</span>
-          <span class="">即時 GPS 位置回報</span>
-        </h1>
-        <p class="text-xs text-amber-800 font-medium mt-0.5">麵包超人團隊出動！一鍵回傳座標到後端資料庫</p>
-      </div>
-    </header>
-    <div class="p-5 sm:p-6 space-y-4">
-      <!-- 裝置 UUID 提示徽章 -->
-      <section aria-label="裝置識別" class="bg-amber-50/90 rounded-2xl p-3 flex items-center justify-between gap-3 text-xs">
-        <div class="flex items-center gap-2 min-w-0">
-          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-400 text-white font-bold text-[10px] shrink-0 shadow-inner">ID</span>
-          <span class="text-amber-900 font-bold shrink-0">裝置碼:</span>
-          <span id="uuidDisplay" class="font-mono text-amber-800 truncate" title="裝置 UUID">載入中...</span>
-        </div>
-        <button id="copyUuidBtn" type="button" class="px-2.5 py-1 bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold rounded-lg text-xs shrink-0 active:scale-95 transition-all flex items-center gap-1 border border-amber-300" title="複製 UUID">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-          </svg>
-          <span class="">複製</span>
-        </button>
-      </section>
-      <!-- 輸入表單 -->
-      <form id="reportForm" class="space-y-4" onsubmit="return false;" novalidate="">
-        
-        <!-- 團隊編號 (必填) -->
-        <div>
-          <label for="teamCode" class="block text-sm font-bold text-amber-950 mb-1 flex items-center justify-between">
-            <span class="flex items-center gap-1">
-              <span class="text-red-500">🚩</span> 團隊編號
+<!-- 主容器卡片 -->
+<main class="w-full max-w-md bg-white rounded-3xl comic-card border-4 border-amber-300 overflow-hidden transition-all duration-300 my-4">
+<!-- 頂部 Header Banner (完整顯示橫式貼圖，不切角) -->
+<header class="relative bg-amber-100/70 border-b-4 border-amber-300 overflow-hidden">
+<!-- 麵包超人主題貼圖 -->
+<div class="w-full bg-[#fceecf] flex items-center justify-center overflow-hidden">
+<img alt="麵包超人 GPS 定位探索回報" class="w-full h-auto block object-contain aspect-[1024/765] max-h-72 sm:max-h-80 transition-all duration-300" id="bannerImg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxFRpPpKoLFkn7fsVvAkI3r0I3bTMlAvD6ao615VajdBYu49zCh_D2mUz17xNw2YAHuIZHaq2VgmlbPsT8lokMUVvkh4CrhH0eFt-ULrOlMaWkPOUr4xFUmuqaF7nzijHGoHqhqdQbuXKqkR4cMPDOMucCAfBs53O7Ryek_jc1g2Bc9PzXrUh114_y772CGsPNLEAjcN_SkKMb6Wo3TX25ux9af2Kvjdmh1s-Oao4zidDuDn5lJZ9rb0QbOylYgjlcLUQ"/>
+</div>
+<!-- 標題與活潑副標 -->
+<div class="px-5 py-3 text-center bg-gradient-to-b from-amber-50 to-orange-50/80">
+<div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold tracking-wider shadow-sm mb-1">
+<span>✨</span>
+<span>ANPANMAN GPS STATION</span>
+<span>✨</span>
+</div>
+<h1 class="text-xl sm:text-2xl font-black text-red-600 tracking-tight flex items-center justify-center gap-1.5">
+<span>📍</span>
+<span>即時 GPS 位置回報</span>
+</h1>
+<p class="text-xs text-amber-800 font-medium mt-0.5">填好團隊編號，按下按鈕，就會把你現在的位置送到雲端打卡表。</p>
+</div>
+</header>
+<div class="p-5 sm:p-6 space-y-4">
+<!-- 輸入表單 -->
+<form class="space-y-4" id="reportForm" novalidate="" onsubmit="return false;">
+<!-- 團隊編號 (必填) -->
+<div>
+<label class="block text-sm font-bold text-amber-950 mb-1 flex items-center justify-between" for="teamCode">
+<span class="flex items-center gap-1">
+<span class="text-red-500">🚩</span> 團隊編號
               <span class="text-red-500 font-bold">*</span>
-            </span>
-            <span class="text-[11px] font-normal text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">必填欄位</span>
-          </label>
-          <div class="relative">
-            <input type="text" id="teamCode" placeholder="請輸入隊伍代號（例：RED-01）" required="" class="w-full px-4 py-2.5 text-amber-950 bg-amber-50/40 border-2 border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 focus:bg-white transition-all text-sm font-medium shadow-inner placeholder:text-amber-400">
-          </div>
-          <p id="teamCodeError" class="hidden text-red-600 text-xs mt-1.5 font-bold flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-            </svg>
+</span>
+<span class="text-[11px] font-normal text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">必填欄位</span>
+</label>
+<div class="relative">
+<input class="w-full px-4 py-2.5 text-amber-950 bg-amber-50/40 border-2 border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 focus:bg-white transition-all text-sm font-medium shadow-inner placeholder:text-amber-400" id="teamCode" placeholder="請輸入隊伍代號（例：B01）" required="" type="text"/>
+</div>
+<p class="hidden text-red-600 text-xs mt-1.5 font-bold flex items-center gap-1" id="teamCodeError">
+<svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" fill-rule="evenodd"></path>
+</svg>
             請輸入團隊編號以利辨識回報來源！
           </p>
-        </div>
-        <!-- 姓名 / 暱稱 (選填) -->
-        <div>
-          <label for="userName" class="block text-sm font-bold text-amber-950 mb-1 flex items-center gap-1">
-            <span class="text-amber-600">👤</span> 隊員姓名 / 暱稱
-            <span class="text-xs font-normal text-amber-600">(選填)</span>
-          </label>
-          <input type="text" id="userName" placeholder="請輸入你的名字（例：小超人）" class="w-full px-4 py-2.5 text-amber-950 bg-amber-50/40 border-2 border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 focus:bg-white transition-all text-sm font-medium shadow-inner placeholder:text-amber-400">
-        </div>
-        <!-- 後端 Web App URL (折疊式設定) -->
-        <details class="group rounded-2xl bg-amber-50/60 p-3 text-xs transition-colors">
-          <summary class="font-bold text-amber-900 cursor-pointer flex items-center justify-between select-none">
-            <span class="flex items-center gap-1.5">
-              <span class="">⚙️</span>
+</div>
+<!-- 姓名 / 暱稱 (選填) -->
+<div>
+<label class="block text-sm font-bold text-amber-950 mb-1 flex items-center gap-1" for="userName">
+<span class="text-amber-600">👤</span> 姓名 / 暱稱
+            <span class="text-xs font-normal text-stone-500">(選填)</span>
+</label>
+<input class="w-full px-4 py-2.5 text-amber-950 bg-amber-50/40 border-2 border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-500 focus:bg-white transition-all text-sm font-medium shadow-inner placeholder:text-amber-400" id="userName" placeholder="請輸入你的名字（例：小貓咪）" type="text"/>
+</div>
+<!-- 後端 Web App URL (折疊式設定) -->
+<details class="group rounded-2xl bg-amber-50/60 p-3 text-xs transition-colors">
+<summary class="font-bold text-amber-900 cursor-pointer flex items-center justify-between select-none">
+<span class="flex items-center gap-1.5">
+<span>⚙️</span>
               後端設定：Google Apps Script API
             </span>
-            <svg class="w-3.5 h-3.5 text-amber-600 transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </summary>
-          <div class="mt-2.5 pt-2">
-<input type="url" id="apiUrl" placeholder="https://script.google.com/macros/s/AKfycbyzp53PB2d52NZ-4ocQCFtXq9MJR33Z0Zd-2BQZj0inpWc3uaTH-VBZopumiyqcpdBf/exec](https://script.google.com/macros/s/AKfycbyzp53PB2d52NZ-4ocQCFtXq9MJR33Z0Zd-2BQZj0inpWc3uaTH-VBZopumiyqcpdBf/exec" value="https://script.google.com/macros/s/AKfycbyzp53PB2d52NZ-4ocQCFtXq9MJR33Z0Zd-2BQZj0inpWc3uaTH-VBZopumiyqcpdBf/exec" class="w-full px-3 py-1.5 font-mono text-amber-950 bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-xs">              請填入 Google Apps Script 部署為 Web 應用程式之 URL（存取權限需設為 Anyone）。
+<svg class="w-3.5 h-3.5 text-amber-600 transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</summary>
+<div class="mt-2.5 pt-2">
+<input class="w-full px-3 py-1.5 font-mono text-amber-950 bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-xs" id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec" type="url" value="https://script.google.com/macros/s/AKfycbyzp53PB2d52NZ-4ocQCFtXq9MJR33Z0Zd-2BQZj0inpWc3uaTH-VBZopumiyqcpdBf/exec"/>
+<p class="text-amber-700 mt-1.5 text-[11px] leading-relaxed">
+              Google Apps Script 雲端回傳 API 網址（已設定完成）。
             </p>
-          </div>
-        </details>
-        <!-- 動作按鈕 (麵包超人亮紅 + 鮮黃撞色活力風格) -->
-        <button type="button" id="submitBtn" class="w-full py-3.5 px-5 bg-gradient-to-r from-red-500 via-red-600 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-base rounded-2xl comic-btn-shadow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-700">
-          <!-- 麵包超人風格圓形圖示 -->
-          <span id="btnIconEmoji" class="text-xl shrink-0">🍞</span>
-          
-          <!-- 按鈕 Loading Spinner -->
-          <svg id="btnSpinner" class="hidden w-5 h-5 shrink-0 animate-spin-custom text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-          <span id="btnText" class="">取得位置並送出</span>
-        </button>
-      </form>
-      <!-- 狀態回饋卡片 (動態顯示) -->
-      <section id="statusCard" class="hidden rounded-2xl border-2 p-4 transition-all duration-300" aria-live="polite">
-        <div class="flex items-start gap-3">
-          <div id="statusIconWrapper" class="shrink-0 text-2xl mt-0.5">
-            <!-- Emoji 圖示由 JS 動態注入 -->
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 id="statusTitle" class="text-sm font-black"></h3>
-            <p id="statusDesc" class="text-xs mt-0.5 break-words font-medium"></p>
-            <!-- 回報成功的詳細紀錄 (經緯度 / 台北時間) -->
-            <div id="reportDetails" class="hidden mt-3 pt-3 border-t border-amber-200/80 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div class="bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm">
-                <span class="text-amber-700 block text-[11px] font-bold">緯度 (Latitude)</span>
-                <span id="detailLat" class="font-mono font-bold text-red-600 text-sm">-</span>
-              </div>
-              <div class="bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm">
-                <span class="text-amber-700 block text-[11px] font-bold">經度 (Longitude)</span>
-                <span id="detailLng" class="font-mono font-bold text-red-600 text-sm">-</span>
-              </div>
-              <div class="bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm col-span-1 sm:col-span-2">
-                <span class="text-amber-700 block text-[11px] font-bold">回報時間 (Asia/Taipei)</span>
-                <span id="detailTime" class="font-mono font-bold text-amber-950 text-sm">-</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-    <!-- 頁尾可愛裝飾說明 -->
-    <footer class="px-5 py-3 bg-amber-100/60 border-t-2 border-amber-200 text-center text-[11px] text-amber-800 font-medium flex items-center justify-center gap-1.5">
-      <span class="">🍪</span>
-      <span class="">請開啟手機 GPS 與瀏覽器位置存取授權</span>
-      <span class="">🍪</span>
-    </footer>
-  </main>
-  <!-- 浮動 Toast 提示 -->
-  <div id="toast" class="fixed bottom-5 bg-amber-900 text-amber-50 px-4 py-2 rounded-xl text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 border border-amber-700 z-50">
+</div>
+</details>
+<!-- 動作按鈕 (麵包超人亮紅 + 鮮黃撞色活力風格) -->
+<button class="w-full py-3.5 px-5 bg-gradient-to-r from-red-500 via-red-600 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-base rounded-2xl comic-btn-shadow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-700" id="submitBtn" type="button">
+<!-- 麵包超人風格圓形圖示 -->
+<span class="text-xl shrink-0" id="btnIconEmoji">🍞</span>
+<!-- 按鈕 Loading Spinner -->
+<svg class="hidden w-5 h-5 shrink-0 animate-spin-custom text-white" fill="none" id="btnSpinner" viewbox="0 0 24 24">
+<circle class="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-90" d="M4 12a8 8 0 018-8v8H4z" fill="currentColor"></path>
+</svg>
+<span id="btnText">取得位置並送出</span>
+</button>
+</form>
+<!-- 錯誤/進行中 狀態卡片 (若有非成功狀態時顯示) -->
+<section aria-live="polite" class="hidden rounded-2xl border-2 p-4 transition-all duration-300" id="statusCard">
+<div class="flex items-start gap-3">
+<div class="shrink-0 text-2xl mt-0.5" id="statusIconWrapper"></div>
+<div class="flex-1 min-w-0">
+<h3 class="text-sm font-black" id="statusTitle"></h3>
+<p class="text-xs mt-0.5 break-words font-medium" id="statusDesc"></p>
+</div>
+</div>
+</section>
+<!-- 成功回報結果卡片 (預設隱藏，回報成功才顯示) -->
+<section aria-live="polite" class="hidden bg-[#eaf7ee] rounded-2xl p-4 sm:p-5 text-neutral-800 transition-all duration-300 text-sm leading-relaxed border border-emerald-200/60 shadow-sm" id="successCard">
+<div class="flex items-center gap-1.5 font-bold text-base text-neutral-900 mb-2">
+<span>✅</span>
+<span>打卡成功！</span>
+</div>
+<div class="space-y-1 font-normal text-stone-800">
+<div>團隊：<span class="font-medium text-stone-900" id="successTeam"></span></div>
+<div>姓名：<span class="font-medium text-stone-900" id="successName"></span></div>
+<div>時間：<span class="font-medium text-stone-900" id="successTime"></span></div>
+<div>位置：<span class="font-medium text-stone-900" id="successCoord"></span>（誤差約 <span id="successAccuracy"></span> 公尺）</div>
+</div>
+<div class="mt-2.5">
+<a class="text-emerald-700 hover:text-emerald-900 underline font-medium inline-flex items-center gap-1 transition-colors" href="#" id="successMapLink" rel="noopener noreferrer" target="_blank">
+            在 Google 地圖查看
+          </a>
+</div>
+</section>
+<!-- 這台裝置的打卡紀錄 (比照截圖下半部) -->
+<section class="pt-2 text-stone-600 text-xs">
+<h4 class="text-[13px] text-stone-500 font-normal mb-2.5 tracking-tight">這台裝置的打卡紀錄</h4>
+<!-- 歷史清單容器 -->
+<div class="space-y-2 text-stone-800" id="historyList">
+<div class="py-2 text-stone-400 text-center border-t border-dashed border-stone-200">尚無打卡紀錄</div>
+</div>
+<!-- 最底部裝置識別碼 -->
+<div class="mt-4 pt-3 border-t border-stone-200/60 flex items-center justify-between gap-2 text-[11px] text-stone-500">
+<div class="min-w-0 truncate">
+<span>裝置識別碼：</span><span class="font-mono text-stone-600" id="uuidDisplay">載入中...</span>
+</div>
+<button class="shrink-0 p-1 hover:text-stone-800 active:scale-95 transition-all" id="copyUuidBtn" title="複製 UUID" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</section>
+</div>
+<!-- 頁尾說明 -->
+<footer class="px-5 py-3 bg-amber-100/60 border-t-2 border-amber-200 text-center text-[11px] text-amber-800 font-medium flex items-center justify-center gap-1.5">
+<span>🍪</span>
+<span>請開啟手機 GPS 與瀏覽器位置存取授權</span>
+<span>🍪</span>
+</footer>
+</main>
+<!-- 浮動 Toast 提示 -->
+<div class="fixed bottom-5 bg-amber-900 text-amber-50 px-4 py-2 rounded-xl text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 border border-amber-700 z-50" id="toast">
     已成功複製！
   </div>
-  <script>
+<script>
     /**
      * GPS 回報前端邏輯模組
      */
@@ -196,12 +202,21 @@
       const statusIconWrapper = document.getElementById('statusIconWrapper');
       const statusTitle = document.getElementById('statusTitle');
       const statusDesc = document.getElementById('statusDesc');
-      const reportDetails = document.getElementById('reportDetails');
-      const detailLat = document.getElementById('detailLat');
-      const detailLng = document.getElementById('detailLng');
-      const detailTime = document.getElementById('detailTime');
+
+      // 截圖樣式打卡成功面板元素
+      const successCard = document.getElementById('successCard');
+      const successTeam = document.getElementById('successTeam');
+      const successName = document.getElementById('successName');
+      const successTime = document.getElementById('successTime');
+      const successCoord = document.getElementById('successCoord');
+      const successAccuracy = document.getElementById('successAccuracy');
+      const successMapLink = document.getElementById('successMapLink');
+      const historyList = document.getElementById('historyList');
+
       const toast = document.getElementById('toast');
       const STORAGE_KEY_UUID = 'gps_reporter_device_uuid';
+      const STORAGE_KEY_HISTORY = 'gps_checkin_history_v1';
+
       /**
        * 1. 取得或產生唯一的裝置 UUID 並儲存
        */
@@ -211,7 +226,6 @@
           if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             uuid = crypto.randomUUID();
           } else {
-            // 備援方案
             uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
               const r = Math.random() * 16 | 0;
               const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -224,6 +238,7 @@
         uuidDisplay.title = uuid;
         return uuid;
       }
+
       /**
        * 2. 取得 Asia/Taipei 時區格式化時間 (YYYY/MM/DD HH:MM)
        */
@@ -250,8 +265,55 @@
         const minute = map.minute.padStart(2, '0');
         return `${year}/${month}/${day} ${hour}:${minute}`;
       }
+
       /**
-       * 3. 顯示自訂浮動提示 (Toast)
+       * 3. 讀取並渲染歷史紀錄 (真實紀錄，無紀錄時顯示尚無紀錄)
+       */
+      function getStoredHistory() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
+          if (raw) {
+            return JSON.parse(raw);
+          }
+        } catch (e) {
+          console.error('Failed to parse history', e);
+        }
+        return [];
+      }
+
+      function saveHistoryItem(item) {
+        let history = getStoredHistory();
+        history.unshift(item);
+        if (history.length > 20) {
+          history = history.slice(0, 20);
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+        } catch (e) {
+          console.error('Failed to save history', e);
+        }
+        renderHistory();
+      }
+
+      function renderHistory() {
+        const list = getStoredHistory();
+        if (!list || list.length === 0) {
+          historyList.innerHTML = '<div class="py-2 text-stone-400 text-center border-t border-dashed border-stone-200">尚無打卡紀錄</div>';
+          return;
+        }
+        historyList.innerHTML = list.map(item => {
+          const displayName = item.name ? `${item.team}・${item.name}` : `${item.team}`;
+          return `
+            <div class="flex items-center justify-between py-1.5 border-t border-dashed border-stone-300/80 text-xs">
+              <span class="font-normal text-stone-900 truncate pr-2">${displayName}</span>
+              <span class="text-stone-500 font-mono text-[11px] shrink-0">${item.time}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      /**
+       * 4. 顯示自訂浮動提示 (Toast)
        */
       function showToast(msg) {
         toast.textContent = msg;
@@ -262,8 +324,9 @@
           toast.classList.add('opacity-0', 'pointer-events-none');
         }, 2000);
       }
+
       /**
-       * 4. 複製 UUID 到剪貼簿
+       * 5. 複製 UUID 到剪貼簿
        */
       copyUuidBtn.addEventListener('click', () => {
         const textToCopy = uuidDisplay.textContent;
@@ -282,8 +345,9 @@
           document.body.removeChild(textarea);
         }
       });
+
       /**
-       * 5. 按鈕讀取中狀態切換
+       * 6. 按鈕讀取中狀態切換
        */
       function setButtonState(isLoading, text = '取得位置並送出', emoji = '🍞') {
         if (isLoading) {
@@ -299,24 +363,14 @@
           btnText.textContent = text;
         }
       }
+
       /**
-       * 6. 狀態卡片展示
+       * 7. 顯示非成功的過渡或錯誤訊息
        */
-      function renderStatus({ type, title, message, details = null }) {
+      function renderInfoOrError({ type, title, message }) {
         statusCard.classList.remove('hidden');
-        reportDetails.classList.add('hidden');
-        // 重設基礎類別
         statusCard.className = 'rounded-2xl border-2 p-4 transition-all duration-300';
-        if (type === 'success') {
-          statusCard.classList.add('bg-emerald-50/90', 'border-emerald-300', 'text-emerald-950');
-          statusIconWrapper.textContent = '🎉';
-          if (details) {
-            reportDetails.classList.remove('hidden');
-            detailLat.textContent = details.latitude;
-            detailLng.textContent = details.longitude;
-            detailTime.textContent = details.timestamp;
-          }
-        } else if (type === 'error') {
+        if (type === 'error') {
           statusCard.classList.add('bg-red-50/90', 'border-red-300', 'text-red-950');
           statusIconWrapper.textContent = '⚠️';
         } else if (type === 'info') {
@@ -326,8 +380,9 @@
         statusTitle.textContent = title;
         statusDesc.textContent = message;
       }
+
       /**
-       * 7. 呼叫瀏覽器 Geolocation API
+       * 8. 呼叫瀏覽器 Geolocation API
        */
       function getCurrentCoordinates() {
         return new Promise((resolve, reject) => {
@@ -363,8 +418,9 @@
           );
         });
       }
+
       /**
-       * 8. 執行回報流程
+       * 9. 執行回報流程
        */
       async function handleLocationSubmit() {
         const teamCode = teamCodeInput.value.trim();
@@ -377,26 +433,31 @@
         const userName = userNameInput.value.trim();
         const apiUrl = apiUrlInput.value.trim();
         const uuid = localStorage.getItem(STORAGE_KEY_UUID) || initDeviceUUID();
+
         if (!apiUrl) {
-          renderStatus({
+          renderInfoOrError({
             type: 'error',
             title: '未設定 API 網址',
             message: '請展開上方「後端設定」並輸入有效的 Google Apps Script 部署 URL。'
           });
           return;
         }
+
         try {
           // 步驟 1: 定位中
           setButtonState(true, 'GPS 搜尋定位中...');
-          renderStatus({
+          renderInfoOrError({
             type: 'info',
             title: '正在偵測座標',
             message: '麵包超人衛星正在接收 GPS 訊號，請稍候...'
           });
+
           const coords = await getCurrentCoordinates();
           const latitude = Number(coords.latitude.toFixed(6));
           const longitude = Number(coords.longitude.toFixed(6));
+          const accuracy = Math.round(coords.accuracy || 20);
           const timestamp = getTaipeiTimestamp();
+
           // 步驟 2: 發送資料
           setButtonState(true, '座標傳送中...');
           const payload = {
@@ -405,8 +466,10 @@
             name: userName,
             latitude: latitude,
             longitude: longitude,
+            accuracy: accuracy,
             timestamp: timestamp
           };
+
           // 以 mode: 'no-cors' 送往 Google Apps Script
           await fetch(apiUrl, {
             method: 'POST',
@@ -416,41 +479,49 @@
             },
             body: JSON.stringify(payload)
           });
-          // 步驟 3: 回報完成
-          setButtonState(false, '再次取得並回報', '✨');
-          renderStatus({
-            type: 'success',
-            title: '回報成功！棒極了！',
-            message: '已將你的即時 GPS 座標成功傳送至後端系統記錄。',
-            details: {
-              latitude: latitude.toFixed(6),
-              longitude: longitude.toFixed(6),
-              timestamp: timestamp
-            }
+
+          // 步驟 3: 回報成功，更新綠色打卡成功面板並顯示
+          statusCard.classList.add('hidden');
+          successTeam.textContent = teamCode;
+          successName.textContent = userName || '無';
+          successTime.textContent = timestamp;
+          successCoord.textContent = `${latitude}, ${longitude}`;
+          successAccuracy.textContent = accuracy;
+          successMapLink.href = `https://www.google.com/maps?q=${latitude},${longitude}`;
+          successCard.classList.remove('hidden');
+
+          // 儲存至歷史紀錄並重新渲染
+          saveHistoryItem({
+            team: teamCode,
+            name: userName,
+            time: timestamp
           });
+
+          setButtonState(false, '取得位置並送出', '🍞');
         } catch (error) {
           console.error('[Report Error]', error);
           setButtonState(false, '重新嘗試回報', '🔄');
-          renderStatus({
+          renderInfoOrError({
             type: 'error',
             title: '回報失敗',
             message: error.message || '發生連線錯誤，請確認網路與 GPS 是否正常。'
           });
         }
       }
+
       // 輸入時隱藏錯誤提示
       teamCodeInput.addEventListener('input', () => {
         if (teamCodeInput.value.trim()) {
           teamCodeError.classList.add('hidden');
         }
       });
+
       // 監聽按鈕點擊
       submitBtn.addEventListener('click', handleLocationSubmit);
-      // 初始化裝置識別碼
+
+      // 初始化裝置識別碼與歷史紀錄
       initDeviceUUID();
+      renderHistory();
     })();
   </script>
-
-
-
 </body></html>
